@@ -4,15 +4,19 @@ import com.spring.codeblog.model.Post;
 import com.spring.codeblog.service.CodeBlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-public class CodeBlogController {
+public class BlogController {
 
     @Autowired
     CodeBlogService codeBlogService;
@@ -31,5 +35,22 @@ public class CodeBlogController {
         Post post = codeBlogService.findById(id);
         mv.addObject("post",post);
         return mv;
+    }
+
+    @RequestMapping(value = "/newPost",method = RequestMethod.GET)
+    public String getPostForm(){
+        return "postForm";
+    }
+
+    @RequestMapping(value = "/newPost", method = RequestMethod.POST)
+    public String postSavePost(@Valid Post post, BindingResult bindingResult, RedirectAttributes redirectAttributes){
+        if (bindingResult.hasErrors())
+            return "redirect:/newPost";
+
+        post.setData(LocalDate.now());
+
+        codeBlogService.save(post);
+
+        return "redirect:/posts";
     }
 }
