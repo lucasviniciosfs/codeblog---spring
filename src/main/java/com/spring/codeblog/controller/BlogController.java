@@ -21,6 +21,14 @@ public class BlogController {
     @Autowired
     CodeBlogService codeBlogService;
 
+    @RequestMapping(value = "/",method = RequestMethod.GET)
+    public ModelAndView getDefault(){
+        ModelAndView mv = new ModelAndView("posts");
+        List<Post> post = codeBlogService.findAll();
+        mv.addObject("posts",post);
+        return mv;
+    }
+
     @RequestMapping(value = "/posts",method = RequestMethod.GET)
     public ModelAndView getPosts(){
         ModelAndView mv = new ModelAndView("posts");
@@ -44,8 +52,10 @@ public class BlogController {
 
     @RequestMapping(value = "/newPost", method = RequestMethod.POST)
     public String postSavePost(@Valid Post post, BindingResult bindingResult, RedirectAttributes redirectAttributes){
-        if (bindingResult.hasErrors())
+        if (bindingResult.hasErrors()){
+            redirectAttributes.addFlashAttribute("mensagemErro","Verifique se todos os campos foram preenchidos!");
             return "redirect:/newPost";
+        }
 
         post.setData(LocalDate.now());
 
